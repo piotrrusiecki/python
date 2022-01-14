@@ -1,6 +1,5 @@
 import pygame
 import random
-
 import os, sys
 
 APP_FOLDER = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -272,26 +271,22 @@ def draw_window(surface, grid, score=0, last_score=0):
     surface.fill((0,0,0))
     pygame.font.init()
 
-    # current score
+    #Display game title
     font = pygame.font.SysFont('comicsans', 60)
     label = font.render('Tetris', 1, (255,255,255))
-
     surface.blit(label, (top_left_x + play_width/2 - (label.get_width()/2), 30))
 
+    #Display score
     font = pygame.font.SysFont('comicsans', 30)
     label = font.render('Score: ' + str(score), 1, (255,255,255))
-
     sx = top_left_x + play_width + 50
     sy = top_left_y + play_height/2 - 100
-
     surface.blit(label, (sx + 20, sy + 160))
 
-    #last score
+    #Display high score
     label = font.render('High Score: ' + last_score, 1, (255,255,255))
-
     sx = top_left_x + - 250
     sy = top_left_y + + 200
-
     surface.blit(label, (sx + 20, sy + 160))
 
     for i in range(len(grid)):
@@ -299,8 +294,7 @@ def draw_window(surface, grid, score=0, last_score=0):
             pygame.draw.rect(surface, grid[i][j], (top_left_x + j*block_size, top_left_y + i*block_size, block_size, block_size), 0)
 
     pygame.draw.rect(surface, (255,0,0), (top_left_x, top_left_y, play_width, play_height), 4)
-
-
+    
     draw_grid(surface, grid)
  
 def main(win):
