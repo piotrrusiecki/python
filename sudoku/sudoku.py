@@ -1993,3 +1993,4 @@ while not_solved:
                             if int_x > 60: grid[ext_x][ext_y].prop_9 = not(grid[ext_x][ext_y].prop_9)
                         display_game(win, grid)
     pygame.display.flip()
+    
