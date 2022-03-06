@@ -24,7 +24,7 @@ class Cell(object):
         self.colour = colour
 
 def create_grid():
-    grid = [[(0,0,0) for x in range(100)] for x in range(100)]
+    grid = [[0 for x in range(100)] for x in range(100)]
     for i in range(len(grid)):
         for j in range(len(grid[i])):
             r = 0
@@ -33,6 +33,25 @@ def create_grid():
             grid[i][j] = Cell(i, j, False, (r,g,b), False)
 
     return grid
+
+def draw_mesh(window):
+    x = 0
+    y = 0
+
+    for l in range(100):
+        x = x + block_size
+        y = y + block_size
+        pygame.draw.line(window, (25,25,25), (x, 0), (x,win_width))
+        pygame.draw.line(window, (25,25,25), (0, y), (win_width,y))
+
+def draw_grid(window, grid):
+    x = 0
+    y = 0
+
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            if grid[i][j].state == True:
+                pygame.draw.rect(window, grid[i][j].colour, (x + i * block_size, y + j * block_size, block_size, block_size))
 
 def change_colour(grid, colour):
     for i in range(len(grid)):
@@ -43,15 +62,6 @@ def change_colour(grid, colour):
                 grid[i][j].colour = (0, random.randint(100,255), 0)
             if colour == "b":
                 grid[i][j].colour = (0, 0, random.randint(100,255))
-
-def draw_grid(window, grid):
-    x = 0
-    y = 0
-
-    for i in range(len(grid)):
-        for j in range(len(grid[i])):
-            if grid[i][j].state == True:
-                pygame.draw.rect(window, grid[i][j].colour, (x + i * block_size, y + j * block_size, block_size, block_size))
 
 def liven_cells(grid, live_amount):
     amount = 0
@@ -108,15 +118,6 @@ def count_company(grid, cell):
 
     return neighbours
 
-def draw_mesh(window):
-    x = 0
-    y = 0
-
-    for l in range(100):
-        x = x + block_size
-        y = y + block_size
-        pygame.draw.line(window, (25,25,25), (x, 0), (x,win_width))
-        pygame.draw.line(window, (25,25,25), (0, y), (win_width,y))
 
 def display_window(window, grid):
     win.fill((0,0,0))
