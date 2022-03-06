@@ -222,6 +222,7 @@ def show_highlight(grid):
                 grid[i][j].prop_9 = False
                 for prop in props:
                     grid[i][j].prop_states[prop] = (None, "NON")
+                    print(str(grid[i][j].proplist))
                     # if prop in grid[i][j].proplist: grid[i][i].proplist.remove(prop)
                 if grid[i][j].value == 1: pygame.draw.rect(win, colour_sol, (grid[i][j].x, grid[i][j].y, block_size/3, block_size/3))
                 if grid[i][j].value == 2: pygame.draw.rect(win, colour_sol, (grid[i][j].x+30, grid[i][j].y, block_size/3, block_size/3))
@@ -1173,7 +1174,6 @@ def hidden_quad_row(grid):
                                     print('      Removing prop ' + str(prop) + ' from cell ' + str(cell_set[3].loc))
                                     setattr(cell_set[3], prop, False)
 
-
 def hidden_quad_column(grid):
     print("18) Checking for hidden quad in column")
     for i in range(len(grid)):
@@ -1993,4 +1993,3 @@ while not_solved:
                             if int_x > 60: grid[ext_x][ext_y].prop_9 = not(grid[ext_x][ext_y].prop_9)
                         display_game(win, grid)
     pygame.display.flip()
-    
