@@ -222,8 +222,7 @@ def show_highlight(grid):
                 grid[i][j].prop_9 = False
                 for prop in props:
                     grid[i][j].prop_states[prop] = (None, "NON")
-                    print(str(grid[i][j].proplist))
-                    # if prop in grid[i][j].proplist: grid[i][i].proplist.remove(prop)
+                grid[i][i].proplist.clear()
                 if grid[i][j].value == 1: pygame.draw.rect(win, colour_sol, (grid[i][j].x, grid[i][j].y, block_size/3, block_size/3))
                 if grid[i][j].value == 2: pygame.draw.rect(win, colour_sol, (grid[i][j].x+30, grid[i][j].y, block_size/3, block_size/3))
                 if grid[i][j].value == 3: pygame.draw.rect(win, colour_sol, (grid[i][j].x+60, grid[i][j].y, block_size/3, block_size/3))
@@ -1506,7 +1505,7 @@ def simple_colouring(grid):
                         # print('Cell ' + str(cell_a.loc) + ' and cell ' + str(cell_b.loc) + ' are linked in a qualifying group')
                         cells_in_chain.append((cell_a, cell_b))
 
-        cells_in_chain = list(set(cells_in_chain))
+        cells_in_chain = sorted(list(set(cells_in_chain)))
 
         if len(cells_in_chain) > 0:
             # print('    >> CELLS IN CHAIN: ')
@@ -1545,7 +1544,7 @@ def simple_colouring(grid):
                         present = True
                 if present == False:
                     # print('Adding key ' + str(key) + ' as it is not found in:')
-                    pprint.pprint(linked_chains)
+                    # pprint.pprint(linked_chains)
                     linked_chains.add((key, key))
 
             # print('    >> LINKED_CHAINS')
@@ -1568,6 +1567,31 @@ def simple_colouring(grid):
             # print('MERGED CHAINS:')
             # pprint.pprint(merged_chains)
 
+            for key_a in list(merged_chains):
+                for key_b in list(merged_chains):
+                    if key_a > key_b:
+                        # print('Comparing ' + str(merged_chains[key_a]) + ' and ' + str(merged_chains[key_b]))
+                        if any(item in merged_chains[key_a] for item in merged_chains[key_b]):
+                            chain_c = set(list(merged_chains[key_a]) + list(merged_chains[key_b]))
+                            key_c = key_a + key_b
+                            # print("A: " + str(key_a) + " - " + str(merged_chains[key_a]))
+                            # print("B: " + str(key_b) + " - " + str(merged_chains[key_b]))
+                            # print("C: " + str(key_c) + " - " + str(chain_c))
+                            # print('Merged chains now')
+                            # pprint.pprint(merged_chains)
+                            merged_chains.pop(key_a, None)
+                            # print('Merged chains popped A')
+                            # pprint.pprint(merged_chains)
+                            merged_chains.pop(key_b, None)
+                            # print('Merged chains popped B')
+                            # pprint.pprint(merged_chains)
+                            merged_chains[key_c] = chain_c
+                            # print('Merged chains added C')
+                            # pprint.pprint(merged_chains)
+
+            # print('REMERGED CHAINS')
+            # pprint.pprint(merged_chains)
+
             final_result = {}
             result_number = 0
 
@@ -1580,38 +1604,41 @@ def simple_colouring(grid):
 
             print('    Chains for ' + str(prop))
             pprint.pprint(final_result, indent=4)
-    
-            for key,chain in final_result.items():
-                for pair in chain:
-                    if chain.index(pair) == 0: 
-                        pair[0].chainstate = "OFF"
-                        pair[0].prop_states[prop] = (key, "RED")
-                    if pair[0].chainstate == "OFF": 
-                        pair[1].chainstate = "ON"
-                        pair[1].prop_states[prop] = (key, "GRN")
-                    if pair[0].chainstate == "ON": 
-                        pair[1].chainstate = "OFF"
-                        pair[1].prop_states[prop] = (key, "RED")
 
-                    if pair[0].chainstate == "NONE":
-                        if pair[1].chainstate == "OFF":
-                            pair[0].chainstate = "ON"
+            repeat = True    
+            while repeat:
+                for key,chain in final_result.items():
+                    for pair in chain:
+                        # print('Evaluating ' + str(pair[0].loc) + ' and ' + str(pair[1].loc))
+                        if chain.index(pair) == 0: 
+                            # print('Setting ' + str(pair[0].loc) + ' to GRN as its the first cell')
                             pair[0].prop_states[prop] = (key, "GRN")
-                            pair[1].chainstate = "OFF"
+                            # print('Setting ' + str(pair[1].loc) + ' to RED as its the second cell')
                             pair[1].prop_states[prop] = (key, "RED")
-                        if pair[1].chainstate == "ON":
-                            pair[0].chainstate = "OFF"
-                            pair[0].prop_states[prop] = (key, "RED")
-                            pair[1].chainstate = "ON"
-                            pair[0].prop_states[prop] = (key, "GRN")
-                        if pair[1].chainstate == "NONE":
-                            pair[0].chainstate = "ON"
-                            pair[0].prop_states[prop] = (key, "GRN")
-                            pair[1].chainstate = "OFF"
-                            pair[1].prop_states[prop] = (key, "RED")
+                        else:
+                            if pair[0].prop_states[prop][1] == "RED":
+                                # print('Setting ' + str(pair[1].loc) + ' to GRN as ' + str(pair[0].loc) + ' is RED')
+                                pair[1].prop_states[prop] = (key, "GRN")
+                            if pair[0].prop_states[prop][1] == "GRN":
+                                # print('Setting ' + str(pair[1].loc) + ' to RED as ' + str(pair[0].loc) + ' is GRN')
+                                pair[1].prop_states[prop] = (key, "RED")
+                            if pair[1].prop_states[prop][1] == "RED":
+                                # print('Setting ' + str(pair[0].loc) + ' to GRN as ' + str(pair[1].loc) + ' is RED')
+                                pair[0].prop_states[prop] = (key, "GRN")
+                            if pair[1].prop_states[prop][1] == "GRN":
+                                # print('Setting ' + str(pair[0].loc) + ' to RED as ' + str(pair[1].loc) + ' is GRN')
+                                pair[0].prop_states[prop] = (key, "RED")
+                    
+                    for pair in chain:
+                        # print('***Checking for unset cells in ' + str(pair[0].loc) + '(value: ' + str(pair[0].prop_states[prop][1]) + ') and ' + str(pair[1].loc) + '(value: ' + str(pair[1].prop_states[prop][1]) + ')')
+                        if pair[0].prop_states[prop][1] == "NON" or pair[1].prop_states[prop][1] == "NON":
+                            # print('***Both values are NON')
+                            repeat = True
+                            break
+                        else:
+                            repeat = False
 
         all_chains[prop] = final_result
-    pprint.pprint(all_chains)
 
 def count_props(grid): 
 #Counts the total amount of props in a cell
@@ -1665,6 +1692,7 @@ def mark_none(grid):
             grid[i][j].prop_9 = False
             grid[i][j].solved = False
             grid[i][j].value = 0
+            grid[i][j].prop_states = {"prop_1" : (None, "NON"), "prop_2" : (None, "NON"), "prop_3" : (None, "NON"), "prop_4" :  (None, "NON"), "prop_5" :  (None, "NON"), "prop_6" :  (None, "NON"), "prop_7" :  (None, "NON"), "prop_8" :  (None, "NON"), "prop_9" :  (None, "NON")}
     all_chains.clear()
 
 def input_game(string, grid):
@@ -1934,15 +1962,24 @@ while not_solved:
                 grid[8][8].prop_1 = True
                 display_game(win, grid)
             if event.key == pygame.K_7:
+                grid[0][0].prop_1 = True
+                grid[1][0].prop_1 = True
+                grid[3][0].prop_1 = True
+                grid[0][1].prop_1 = True
+                grid[4][1].prop_1 = True
                 grid[2][3].prop_1 = True
-                grid[1][4].prop_1 = True
-                grid[2][5].prop_1 = True
-                grid[1][6].prop_1 = True
                 grid[5][3].prop_1 = True
-                grid[4][5].prop_1 = True
+                grid[0][4].prop_1 = True
+                grid[8][4].prop_1 = True
+                grid[3][5].prop_1 = True
+                grid[6][5].prop_1 = True
+                grid[2][6].prop_1 = True
+                grid[6][6].prop_1 = True
                 grid[4][7].prop_1 = True
                 grid[5][7].prop_1 = True
-                grid[8][4].prop_1 = True
+                grid[1][8].prop_1 = True
+                grid[8][8].prop_1 = True
+
                 display_game(win, grid)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
